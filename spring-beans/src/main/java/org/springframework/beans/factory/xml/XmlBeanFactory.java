@@ -27,6 +27,9 @@ import org.springframework.core.io.Resource;
  */
 public class XmlBeanFactory extends DefaultListableBeanFactory {
 
+	/**
+	 * Bean定义读取器：读取XML配置文件
+	 */
 	private final XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(this);
 
 
@@ -48,6 +51,8 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
 	 */
 	public XmlBeanFactory(Resource resource, BeanFactory parentBeanFactory) throws BeansException {
 		super(parentBeanFactory);
+		// resource是用于封装配置文件的类
+		// 通过resource资源加载bean定义
 		this.reader.loadBeanDefinitions(resource);
 	}
 
