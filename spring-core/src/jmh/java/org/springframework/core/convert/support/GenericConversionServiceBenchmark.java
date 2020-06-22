@@ -39,6 +39,7 @@ import org.springframework.core.convert.TypeDescriptor;
  * Benchmarks for {@link GenericConversionService}.
  * @author Brian Clozel
  */
+
 @BenchmarkMode(Mode.Throughput)
 public class GenericConversionServiceBenchmark {
 
