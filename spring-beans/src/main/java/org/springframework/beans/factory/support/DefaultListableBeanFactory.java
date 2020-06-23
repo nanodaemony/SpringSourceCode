@@ -951,18 +951,25 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 
 	//---------------------------------------------------------------------
-	// Implementation of BeanDefinitionRegistry interface
+	//
 	//---------------------------------------------------------------------
 
+	/**
+	 * 实现eanDefinitionRegistry接口
+	 *
+	 * @param beanName the name of the bean instance to register
+	 * @param beanDefinition definition of the bean instance to register
+	 */
 	@Override
-	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
-			throws BeanDefinitionStoreException {
+	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
 
 		Assert.hasText(beanName, "Bean name must not be empty");
 		Assert.notNull(beanDefinition, "BeanDefinition must not be null");
 
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
+
+				// 对AbstractBeanDefinition做最后一次校验
 				((AbstractBeanDefinition) beanDefinition).validate();
 			}
 			catch (BeanDefinitionValidationException ex) {
@@ -970,9 +977,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-
+		// 看看是否已经注册过这个bean了
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+		// 如果已经注册过了
 		if (existingDefinition != null) {
+			// 如果已经设置了不允许覆盖则抛异常
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
 			}
@@ -998,12 +1007,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
+			// 注册过则直接放入进行覆盖
 			this.beanDefinitionMap.put(beanName, beanDefinition);
-		}
-		else {
+
+			// 说明还没有注册过这个bean
+		} else {
 			if (hasBeanCreationStarted()) {
-				// Cannot modify startup-time collection elements anymore (for stable iteration)
+
+				// 因为beanDefinitionMap是全局变量，所以肯定会存在并发访问的情况，需要加锁
 				synchronized (this.beanDefinitionMap) {
+					// 注册BeanDefinition
 					this.beanDefinitionMap.put(beanName, beanDefinition);
 					List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
 					updatedDefinitions.addAll(this.beanDefinitionNames);
@@ -1011,10 +1024,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					this.beanDefinitionNames = updatedDefinitions;
 					removeManualSingletonName(beanName);
 				}
-			}
-			else {
+			} else {
 				// Still in startup registration phase
+				// 依然在启动注册的阶段
 				this.beanDefinitionMap.put(beanName, beanDefinition);
+				// 记录beanName
 				this.beanDefinitionNames.add(beanName);
 				removeManualSingletonName(beanName);
 			}
@@ -1022,6 +1036,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		if (existingDefinition != null || containsSingleton(beanName)) {
+
+			// 重置所有beanName对应的缓存：清除解析之前留下的对应beanName的缓存
 			resetBeanDefinition(beanName);
 		}
 		else if (isConfigurationFrozen()) {

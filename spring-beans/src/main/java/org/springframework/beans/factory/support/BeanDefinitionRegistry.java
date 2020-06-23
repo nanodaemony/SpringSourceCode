@@ -48,6 +48,8 @@ import org.springframework.core.AliasRegistry;
 public interface BeanDefinitionRegistry extends AliasRegistry {
 
 	/**
+	 * 对BeanDefinition进行注册
+	 *
 	 * Register a new bean definition with this registry.
 	 * Must support RootBeanDefinition and ChildBeanDefinition.
 	 * @param beanName the name of the bean instance to register
@@ -58,6 +60,7 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
 	 * @see GenericBeanDefinition
 	 * @see RootBeanDefinition
 	 * @see ChildBeanDefinition
+	 * 这里使用的是DefaultListableBeanFactory这个实现类
 	 */
 	void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException;

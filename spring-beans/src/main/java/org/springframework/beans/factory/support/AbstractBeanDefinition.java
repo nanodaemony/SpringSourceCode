@@ -39,25 +39,15 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Base class for concrete, full-fledged {@link BeanDefinition} classes,
- * factoring out common properties of {@link GenericBeanDefinition},
- * {@link RootBeanDefinition}, and {@link ChildBeanDefinition}.
+ * 实现了BeanDefinition接口的抽象类：可以看看下面的一些属性，已加注释
  *
- * <p>The autowire constants match the ones defined in the
- * {@link org.springframework.beans.factory.config.AutowireCapableBeanFactory}
- * interface.
- *
- * @author Rod Johnson
- * @author Juergen Hoeller
- * @author Rob Harrop
- * @author Mark Fisher
+ * 其实现类有三个，如下：
  * @see GenericBeanDefinition
  * @see RootBeanDefinition
  * @see ChildBeanDefinition
  */
 @SuppressWarnings("serial")
-public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor
-		implements BeanDefinition, Cloneable {
+public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition, Cloneable {
 
 	/**
 	 * Constant for the default scope name: {@code ""}, equivalent to singleton
@@ -141,14 +131,23 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private volatile Object beanClass;
 
+	/**
+	 * bean的作用范围，对应bean属性scope
+	 */
 	@Nullable
 	private String scope = SCOPE_DEFAULT;
 
 	private boolean abstractFlag = false;
 
+	/**
+	 * 是否延迟加载
+	 */
 	@Nullable
 	private Boolean lazyInit;
 
+	/**
+	 * 自动注入模式
+	 */
 	private int autowireMode = AUTOWIRE_NO;
 
 	private int dependencyCheck = DEPENDENCY_CHECK_NONE;
@@ -183,9 +182,15 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	private MethodOverrides methodOverrides = new MethodOverrides();
 
+	/**
+	 * 初始化方法名
+	 */
 	@Nullable
 	private String initMethodName;
 
+	/**
+	 * 销毁方法名
+	 */
 	@Nullable
 	private String destroyMethodName;
 
@@ -197,6 +202,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	private int role = BeanDefinition.ROLE_APPLICATION;
 
+	/**
+	 * 描述信息
+	 */
 	@Nullable
 	private String description;
 

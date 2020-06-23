@@ -360,9 +360,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource) throws BeanDefinitionStoreException {
 
 		try {
-			// 将source对象转换为Document对象
+			// 将source对象转换为Document对象 获取对应资源的验证模式
 			Document doc = doLoadDocument(inputSource, resource);
 
+			// 利用Document对象，提取并注册bean，注册BeanDefinition并返回个数
+			// 核心方法！！！！！
 			int count = registerBeanDefinitions(doc, resource);
 
 			if (logger.isDebugEnabled()) {
@@ -421,32 +423,30 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 
 	/**
-	 * Actually load the specified document using the configured DocumentLoader.
+	 * 实际对Document进行加载
+	 *
 	 * @param inputSource the SAX InputSource to read from
 	 * @param resource the resource descriptor for the XML file
-	 * @return the DOM Document
-	 * @throws Exception when thrown from the DocumentLoader
-	 * @see #setDocumentLoader
-	 * @see DocumentLoader#loadDocument
+	 * @return 返回DOM文件对象
 	 */
 	protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
+
+		// 获取对应资源的验证模式
 		return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
 				getValidationModeForResource(resource), isNamespaceAware());
 	}
 
+
 	/**
-	 * Determine the validation mode for the specified {@link Resource}.
-	 * If no explicit validation mode has been configured, then the validation
-	 * mode gets {@link #detectValidationMode detected} from the given resource.
-	 * <p>Override this method if you would like full control over the validation
-	 * mode, even when something other than {@link #VALIDATION_AUTO} was set.
-	 * @see #detectValidationMode
+	 * 获取对应资源的验证模式
 	 */
 	protected int getValidationModeForResource(Resource resource) {
 		int validationModeToUse = getValidationMode();
+		// 如果手动指定了验证模式则使用指定的验证模式
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
 		}
+		// 如果未指定则使用自动检测
 		int detectedMode = detectValidationMode(resource);
 		if (detectedMode != VALIDATION_AUTO) {
 			return detectedMode;
@@ -458,11 +458,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
-	 * Detect which kind of validation to perform on the XML file identified
-	 * by the supplied {@link Resource}. If the file has a {@code DOCTYPE}
-	 * definition then DTD validation is used otherwise XSD validation is assumed.
-	 * <p>Override this method if you would like to customize resolution
-	 * of the {@link #VALIDATION_AUTO} mode.
+	 * 自动检测验证模式
 	 */
 	protected int detectValidationMode(Resource resource) {
 		if (resource.isOpen()) {
@@ -485,6 +481,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		}
 
 		try {
+			// 检测验证模式的核心逻辑
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
@@ -494,22 +491,20 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
-	 * Register the bean definitions contained in the given DOM document.
-	 * Called by {@code loadBeanDefinitions}.
-	 * <p>Creates a new instance of the parser class and invokes
-	 * {@code registerBeanDefinitions} on it.
-	 * @param doc the DOM document
-	 * @param resource the resource descriptor (for context information)
-	 * @return the number of bean definitions found
-	 * @throws BeanDefinitionStoreException in case of parsing errors
-	 * @see #loadBeanDefinitions
-	 * @see #setDocumentReaderClass
-	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
+	 * 解析Document对象并注册Bean
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		// createBeanDefinitionDocumentReader()方法就是返回一个DefaultBeanDefinitionDocumentReader对象
+		// 用于实例化BeanDefinitionDocumentReader
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+
+		// 记录统计前BeanDefinition的加载个数
 		int countBefore = getRegistry().getBeanDefinitionCount();
+
+		// 加载及注册bean！！这里documentReader是DefaultBeanDefinitionDocumentReader的实例对象
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+
+		// 计算本次加载的BeanDefinition个数，此次注册会产生新的BeanDefinition
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

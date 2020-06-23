@@ -23,20 +23,9 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
- * A BeanDefinition describes a bean instance, which has property values,
- * constructor argument values, and further information supplied by
- * concrete implementations.
+ * BeanDefinition就是配置文件中<bean>配置信息在容器中的内部表示，后续会将BeanDefinition注册到BeanDefinitionRegistry中
  *
- * <p>This is just a minimal interface: The main intention is to allow a
- * {@link BeanFactoryPostProcessor} to introspect and modify property values
- * and other bean metadata.
- *
- * @author Juergen Hoeller
- * @author Rob Harrop
- * @since 19.03.2004
- * @see ConfigurableListableBeanFactory#getBeanDefinition
- * @see org.springframework.beans.factory.support.RootBeanDefinition
- * @see org.springframework.beans.factory.support.ChildBeanDefinition
+ * @author: spring
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 

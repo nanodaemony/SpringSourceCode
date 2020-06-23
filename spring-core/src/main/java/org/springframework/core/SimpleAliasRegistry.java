@@ -49,10 +49,16 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);
 
 
+	/**
+	 * 通过别名注册BeanDefinition
+	 * @param name the canonical name
+	 * @param alias the alias to be registered
+	 */
 	@Override
 	public void registerAlias(String name, String alias) {
 		Assert.hasText(name, "'name' must not be empty");
 		Assert.hasText(alias, "'alias' must not be empty");
+		// 加锁
 		synchronized (this.aliasMap) {
 			if (alias.equals(name)) {
 				this.aliasMap.remove(alias);
@@ -61,6 +67,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 				}
 			}
 			else {
+				// 这里也是看别名有没有注册，如果已经注册，直接覆盖，如果不允许覆盖就抛异常。
 				String registeredName = this.aliasMap.get(alias);
 				if (registeredName != null) {
 					if (registeredName.equals(name)) {
@@ -76,6 +83,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
+				// alias循环检测
 				checkForAliasCircle(name, alias);
 				this.aliasMap.put(alias, name);
 				if (logger.isTraceEnabled()) {
